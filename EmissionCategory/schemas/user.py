@@ -5,7 +5,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from carbon_api.enums import UserRole
+from ..enums import UserRole
 
 
 class UserBase(BaseModel):

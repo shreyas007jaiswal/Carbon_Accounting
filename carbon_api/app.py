@@ -5,8 +5,8 @@ FastAPI application with modular routing.
 
 from fastapi import FastAPI
 
-from carbon_api.database import engine, Base
-from carbon_api.routes import (
+from .database import engine, Base
+from .routes import (
     organization_router,
     user_router,
     facility_router,

@@ -5,9 +5,9 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 
-from carbon_api.database import get_db
-from carbon_api.models import CompanyVehicle, EmissionActivity, EmissionFactor
-from carbon_api.schemas.company_vehicle import CompanyVehicleCreate, CompanyVehicleResponse
+from ..database import get_db
+from ..models import CompanyVehicle, EmissionActivity, EmissionFactor
+from ..schemas.company_vehicle import CompanyVehicleCreate, CompanyVehicleResponse
 
 
 router = APIRouter(prefix="/scope1/company-vehicles", tags=["Scope 1 - Company Vehicles"])

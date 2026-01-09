@@ -5,9 +5,9 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 
-from carbon_api.database import get_db
-from carbon_api.models import Facility, Organization
-from carbon_api.schemas.facility import FacilityCreate, FacilityResponse
+from ..database import get_db
+from ..models import Facility, Organization
+from ..schemas.facility import FacilityCreate, FacilityResponse
 
 
 router = APIRouter(prefix="/facilities", tags=["Facilities"])

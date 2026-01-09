@@ -5,9 +5,9 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 
-from carbon_api.database import get_db
-from carbon_api.models import RefrigerantLeak, EmissionActivity
-from carbon_api.schemas.refrigerant_leak import RefrigerantLeakCreate, RefrigerantLeakResponse
+from ..database import get_db
+from ..models import RefrigerantLeak, EmissionActivity
+from ..schemas.refrigerant_leak import RefrigerantLeakCreate, RefrigerantLeakResponse
 
 
 router = APIRouter(prefix="/scope1/refrigerant-leaks", tags=["Scope 1 - Refrigerant Leaks"])

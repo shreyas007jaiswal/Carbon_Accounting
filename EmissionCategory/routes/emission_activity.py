@@ -5,9 +5,9 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 
-from carbon_api.database import get_db
-from carbon_api.models import EmissionActivity, Organization, Facility, Supplier
-from carbon_api.schemas.emission_activity import EmissionActivityCreate, EmissionActivityResponse
+from ..database import get_db
+from ..models import EmissionActivity, Organization, Facility, Supplier
+from ..schemas.emission_activity import EmissionActivityCreate, EmissionActivityResponse
 
 
 router = APIRouter(prefix="/emission-activities", tags=["Emission Activities"])
