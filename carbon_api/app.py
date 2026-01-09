@@ -48,8 +48,3 @@ app.include_router(company_vehicle_router)
 app.include_router(refrigerant_leak_router)
 app.include_router(process_emission_router)
 app.include_router(health_router)
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
