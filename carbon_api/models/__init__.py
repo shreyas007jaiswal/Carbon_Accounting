@@ -188,9 +188,11 @@ class RefrigerantLeak(Base):
     refrigerant_type = Column(String(100), nullable=False)
     leak_quantity_kg = Column(DECIMAL(18, 4), nullable=False)
     gwp_factor = Column(DECIMAL(18, 4))
+    factor_id = Column(Integer, ForeignKey("emission_factor.factor_id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     activity = relationship("EmissionActivity", back_populates="refrigerant_leaks")
+    emission_factor = relationship("EmissionFactor", back_populates="refrigerant_leaks")
 
 
 class ProcessEmission(Base):
