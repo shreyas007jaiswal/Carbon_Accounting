@@ -4,6 +4,7 @@ FastAPI application with modular routing.
 """
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .database import engine, Base
 from .routes import (
@@ -26,6 +27,15 @@ app = FastAPI(
     title="Carbon Accounting API",
     description="API for tracking Scope 1, 2, and 3 emissions with master tables and Scope 1 subtables.",
     version="1.0.0",
+)
+
+# Add CORS middleware to allow frontend access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, PUT, DELETE, OPTIONS)
+    allow_headers=["*"],  # Allows all headers
 )
 
 

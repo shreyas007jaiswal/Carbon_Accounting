@@ -6,8 +6,9 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import StationaryFuel, EmissionActivity, EmissionFactor
+from ..models import StationaryFuel, EmissionActivity, EmissionFactor, EmissionCalculation
 from ..schemas.stationary_fuel import StationaryFuelCreate, StationaryFuelResponse
+from ..services import find_matching_factor, calculate_co2e
 
 
 router = APIRouter(prefix="/scope1/stationary-fuels", tags=["Scope 1 - Stationary Fuel"])
@@ -15,20 +16,51 @@ router = APIRouter(prefix="/scope1/stationary-fuels", tags=["Scope 1 - Stationar
 
 @router.post("/", response_model=StationaryFuelResponse, status_code=status.HTTP_201_CREATED)
 def create_stationary_fuel(fuel: StationaryFuelCreate, db: Session = Depends(get_db)):
-    """Create a new stationary fuel record."""
+    """Create a new stationary fuel record and auto-calculate CO2e."""
     activity = db.query(EmissionActivity).filter(EmissionActivity.activity_id == fuel.activity_id).first()
     if not activity:
         raise HTTPException(status_code=404, detail="Emission activity not found")
     
+    # Try to find matching emission factor
+    factor = None
     if fuel.factor_id:
         factor = db.query(EmissionFactor).filter(EmissionFactor.factor_id == fuel.factor_id).first()
-        if not factor:
-            raise HTTPException(status_code=404, detail="Emission factor not found")
+    else:
+        # Auto-match based on fuel type and unit
+        factor = find_matching_factor(db, category=fuel.fuel_type, unit=fuel.unit)
     
     db_fuel = StationaryFuel(**fuel.model_dump())
+    
+    if factor:
+        db_fuel.factor_id = factor.factor_id
+    
     db.add(db_fuel)
     db.commit()
     db.refresh(db_fuel)
+    
+    # Auto-calculate and create/update emission calculation
+    if factor and fuel.quantity:
+        co2e_value = calculate_co2e(float(fuel.quantity), float(factor.value))
+        
+        existing_calc = db.query(EmissionCalculation).filter(
+            EmissionCalculation.activity_id == fuel.activity_id
+        ).first()
+        
+        if existing_calc:
+            existing_calc.co2e_value = co2e_value
+            existing_calc.calculation_method = "Stationary Fuel Auto-calc"
+            existing_calc.factor_used = f"{factor.category} ({factor.value} {factor.unit})"
+        else:
+            calc = EmissionCalculation(
+                activity_id=fuel.activity_id,
+                co2e_value=co2e_value,
+                calculation_method="Stationary Fuel Auto-calc",
+                factor_used=f"{factor.category} ({factor.value} {factor.unit})"
+            )
+            db.add(calc)
+        
+        db.commit()
+    
     return db_fuel
 
 

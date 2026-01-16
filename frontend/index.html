@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Accounting Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-leaf"></i>
+            <h2>Carbon<span>Track</span></h2>
+        </div>
+        <ul class="nav-links">
+            <li class="active" data-section="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </li>
+            <li data-section="organizations">
+                <i class="fas fa-building"></i>
+                <span>Organizations</span>
+            </li>
+            <li data-section="facilities">
+                <i class="fas fa-industry"></i>
+                <span>Facilities</span>
+            </li>
+            <li data-section="users">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </li>
+            <li data-section="suppliers">
+                <i class="fas fa-truck"></i>
+                <span>Suppliers</span>
+            </li>
+            <li data-section="emission-factors">
+                <i class="fas fa-calculator"></i>
+                <span>Emission Factors</span>
+            </li>
+            <li data-section="activities">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Activities</span>
+            </li>
+            <li data-section="scope1">
+                <i class="fas fa-fire"></i>
+                <span>Scope 1 Details</span>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="page-title">Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <div class="api-status">
+                    <span class="status-dot" id="api-status-dot"></span>
+                    <span id="api-status-text">Checking API...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <!-- Total Emissions Banner -->
+            <div class="emissions-banner">
+                <div class="emissions-total">
+                    <div class="emissions-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <div class="emissions-info">
+                        <h2 id="total-co2e">0.00</h2>
+                        <p>Total CO₂e (tonnes)</p>
+                    </div>
+                </div>
+                <div class="emissions-breakdown">
+                    <div class="emissions-scope">
+                        <span class="scope-badge scope1">Scope 1</span>
+                        <span class="scope-value" id="scope1-co2e">0.00</span>
+                        <span class="scope-unit">tonnes</span>
+                    </div>
+                    <div class="emissions-scope">
+                        <span class="scope-badge scope2">Scope 2</span>
+                        <span class="scope-value" id="scope2-co2e">0.00</span>
+                        <span class="scope-unit">tonnes</span>
+                    </div>
+                    <div class="emissions-scope">
+                        <span class="scope-badge scope3">Scope 3</span>
+                        <span class="scope-value" id="scope3-co2e">0.00</span>
+                        <span class="scope-unit">tonnes</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon organizations">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-organizations">0</h3>
+                        <p>Organizations</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon facilities">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-facilities">0</h3>
+                        <p>Facilities</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon users">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-users">0</h3>
+                        <p>Users</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon emissions">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-emissions">0</h3>
+                        <p>Activities</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card recent-activities">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Recent Calculations</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Scope</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                    <th>CO₂e (kg)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-activities-table">
+                                <tr>
+                                    <td colspan="5" class="loading">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card emissions-by-scope">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-pie"></i> Emissions by Scope</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="scope-bars" id="scope-bars">
+                            <div class="scope-bar">
+                                <div class="scope-label">Scope 1</div>
+                                <div class="bar-container">
+                                    <div class="bar scope1" id="scope1-bar" style="width: 0%"></div>
+                                </div>
+                                <div class="scope-value" id="scope1-count">0 kg</div>
+                            </div>
+                            <div class="scope-bar">
+                                <div class="scope-label">Scope 2</div>
+                                <div class="bar-container">
+                                    <div class="bar scope2" id="scope2-bar" style="width: 0%"></div>
+                                </div>
+                                <div class="scope-value" id="scope2-count">0 kg</div>
+                            </div>
+                            <div class="scope-bar">
+                                <div class="scope-label">Scope 3</div>
+                                <div class="bar-container">
+                                    <div class="bar scope3" id="scope3-bar" style="width: 0%"></div>
+                                </div>
+                                <div class="scope-value" id="scope3-count">0 kg</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emissions by Category -->
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-header">
+                    <h3><i class="fas fa-list"></i> Top Emission Categories</h3>
+                </div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Scope</th>
+                                <th>Activities</th>
+                                <th>Total CO₂e (kg)</th>
+                                <th>Total CO₂e (tonnes)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emissions-by-category-table">
+                            <tr>
+                                <td colspan="5" class="loading">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Organizations Section -->
+        <section id="organizations" class="section">
+            <div class="section-header">
+                <h2>Organizations</h2>
+                <button class="btn btn-primary" onclick="openModal('organization')">
+                    <i class="fas fa-plus"></i> Add Organization
+                </button>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Sector</th>
+                                <th>Country</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="organizations-table">
+                            <tr>
+                                <td colspan="6" class="loading">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Facilities Section -->
+        <section id="facilities" class="section">
+            <div class="section-header">
+                <h2>Facilities</h2>
+                <button class="btn btn-primary" onclick="openModal('facility')">
+                    <i class="fas fa-plus"></i> Add Facility
+                </button>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Organization</th>
+                                <th>Location</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="facilities-table">
+                            <tr>
+                                <td colspan="6" class="loading">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Users Section -->
+        <section id="users" class="section">
+            <div class="section-header">
+                <h2>Users</h2>
+                <button class="btn btn-primary" onclick="openModal('user')">
+                    <i class="fas fa-plus"></i> Add User
+                </button>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Organization</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table">
+                            <tr>
+                                <td colspan="6" class="loading">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Suppliers Section -->
+        <section id="suppliers" class="section">
+            <div class="section-header">
+                <h2>Suppliers</h2>
+                <button class="btn btn-primary" onclick="openModal('supplier')">
+                    <i class="fas fa-plus"></i> Add Supplier
+                </button>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suppliers-table">
+                            <tr>
+                                <td colspan="5" class="loading">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Emission Factors Section -->
+        <section id="emission-factors" class="section">
+            <div class="section-header">
+                <h2>Emission Factors</h2>
+                <button class="btn btn-primary" onclick="openModal('emission-factor')">
+                    <i class="fas fa-plus"></i> Add Factor
+                </button>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Category</th>
+                                <th>Region</th>
+                                <th>Value</th>
+                                <th>Unit</th>
+                                <th>Valid Period</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emission-factors-table">
+                            <tr>
+                                <td colspan="7" class="loading">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Activities Section -->
+        <section id="activities" class="section">
+            <div class="section-header">
+                <h2>Emission Activities</h2>
+                <button class="btn btn-primary" onclick="openModal('activity')">
+                    <i class="fas fa-plus"></i> Add Activity
+                </button>
+            </div>
+            <div class="filters">
+                <select id="scope-filter" onchange="filterActivities()">
+                    <option value="">All Scopes</option>
+                    <option value="1">Scope 1</option>
+                    <option value="2">Scope 2</option>
+                    <option value="3">Scope 3</option>
+                </select>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Date</th>
+                                <th>Scope</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Source</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activities-table">
+                            <tr>
+                                <td colspan="8" class="loading">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scope 1 Details Section -->
+        <section id="scope1" class="section">
+            <div class="section-header">
+                <h2>Scope 1 Details</h2>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="stationary-fuels">Stationary Fuels</button>
+                <button class="tab-btn" data-tab="company-vehicles">Company Vehicles</button>
+                <button class="tab-btn" data-tab="refrigerant-leaks">Refrigerant Leaks</button>
+                <button class="tab-btn" data-tab="process-emissions">Process Emissions</button>
+            </div>
+
+            <!-- Stationary Fuels Tab -->
+            <div class="tab-content active" id="stationary-fuels-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Stationary Fuels</h3>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('stationary-fuel')">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Activity ID</th>
+                                    <th>Fuel Type</th>
+                                    <th>Quantity</th>
+                                    <th>Unit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stationary-fuels-table">
+                                <tr>
+                                    <td colspan="6" class="loading">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Vehicles Tab -->
+            <div class="tab-content" id="company-vehicles-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Company Vehicles</h3>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('company-vehicle')">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Activity ID</th>
+                                    <th>Vehicle Type</th>
+                                    <th>Distance</th>
+                                    <th>Fuel Consumed</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="company-vehicles-table">
+                                <tr>
+                                    <td colspan="6" class="loading">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Refrigerant Leaks Tab -->
+            <div class="tab-content" id="refrigerant-leaks-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Refrigerant Leaks</h3>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('refrigerant-leak')">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Activity ID</th>
+                                    <th>Refrigerant Type</th>
+                                    <th>Leak Qty (kg)</th>
+                                    <th>GWP Factor</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="refrigerant-leaks-table">
+                                <tr>
+                                    <td colspan="6" class="loading">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process Emissions Tab -->
+            <div class="tab-content" id="process-emissions-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Process Emissions</h3>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('process-emission')">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Activity ID</th>
+                                    <th>Material Type</th>
+                                    <th>Qty Processed</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="process-emissions-table">
+                                <tr>
+                                    <td colspan="5" class="loading">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Form content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <i class="fas fa-check-circle"></i>
+            <span id="toast-message">Success!</span>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
