@@ -1,26 +1,30 @@
-"""Stationary Fuel Schemas (Scope 1)"""
+"""Stationary Fuel Pydantic Schemas (Scope 1)"""
 
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class StationaryFuelBase(BaseModel):
-    fuel_type: str = Field(..., max_length=100)
+    """Base schema for stationary fuel."""
+    activity_id: int
+    fuel_category: Optional[str] = None  # Gaseous, Liquid, Solid
+    fuel_type: str  # Natural Gas, LPG, Diesel, etc.
     quantity: Decimal
-    unit: str = Field(..., max_length=50)
+    unit: str  # kWh, litres, tonnes
     factor_id: Optional[int] = None
 
 
 class StationaryFuelCreate(StationaryFuelBase):
-    activity_id: int
+    """Schema for creating a stationary fuel record."""
+    pass
 
 
 class StationaryFuelResponse(StationaryFuelBase):
+    """Schema for stationary fuel response."""
     fuel_id: int
-    activity_id: int
     created_at: datetime
 
     class Config:

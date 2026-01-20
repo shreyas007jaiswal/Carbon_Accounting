@@ -1,25 +1,30 @@
-"""Refrigerant Leak Schemas (Scope 1)"""
+"""Refrigerant Leak Pydantic Schemas (Scope 1)"""
 
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class RefrigerantLeakBase(BaseModel):
-    refrigerant_type: str = Field(..., max_length=100)
+    """Base schema for refrigerant leak."""
+    activity_id: int
+    refrigerant_category: Optional[str] = None  # HFC, PFC, etc.
+    refrigerant_type: str  # R-410A, R-134a, R-404A
     leak_quantity_kg: Decimal
-    gwp_factor: Optional[Decimal] = None
+    gwp_factor: Optional[Decimal] = None  # Global Warming Potential
+    factor_id: Optional[int] = None
 
 
 class RefrigerantLeakCreate(RefrigerantLeakBase):
-    activity_id: int
+    """Schema for creating a refrigerant leak record."""
+    pass
 
 
 class RefrigerantLeakResponse(RefrigerantLeakBase):
+    """Schema for refrigerant leak response."""
     refrigerant_id: int
-    activity_id: int
     created_at: datetime
 
     class Config:

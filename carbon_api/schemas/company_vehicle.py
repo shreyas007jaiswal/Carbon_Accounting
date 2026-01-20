@@ -1,26 +1,31 @@
-"""Company Vehicle Schemas (Scope 1)"""
+"""Company Vehicle Pydantic Schemas (Scope 1)"""
 
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class CompanyVehicleBase(BaseModel):
-    vehicle_type: str = Field(..., max_length=100)
-    distance_travelled: Optional[Decimal] = None
-    fuel_consumed: Optional[Decimal] = None
+    """Base schema for company vehicle."""
+    activity_id: int
+    vehicle_type: str  # Car, Van, HGV
+    vehicle_size: Optional[str] = None  # Small, Medium, Large
+    fuel_type: Optional[str] = None  # Petrol, Diesel, Hybrid, Electric
+    distance_travelled: Optional[Decimal] = None  # km
+    fuel_consumed: Optional[Decimal] = None  # litres
     factor_id: Optional[int] = None
 
 
 class CompanyVehicleCreate(CompanyVehicleBase):
-    activity_id: int
+    """Schema for creating a company vehicle record."""
+    pass
 
 
 class CompanyVehicleResponse(CompanyVehicleBase):
+    """Schema for company vehicle response."""
     vehicle_id: int
-    activity_id: int
     created_at: datetime
 
     class Config:
