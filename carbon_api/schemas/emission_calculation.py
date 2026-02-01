@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 
 class EmissionCalculationBase(BaseModel):
+    factor_id: Optional[int] = None
     co2e_value: Decimal
     calculation_method: Optional[str] = Field(None, max_length=100)
     factor_used: Optional[str] = Field(None, max_length=255)

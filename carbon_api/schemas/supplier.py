@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 class SupplierBase(BaseModel):
     name: str = Field(..., max_length=255)
-    category: Optional[str] = Field(None, max_length=255)
+    procurement_category: Optional[str] = Field(None, max_length=255)
 
 
 class SupplierCreate(SupplierBase):

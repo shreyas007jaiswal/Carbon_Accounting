@@ -15,7 +15,7 @@ def find_matching_factor(
     db: Session,
     category: str,
     unit: str,
-    region: str = "UK"
+    standard_source: str = "UK"
 ) -> Optional[EmissionFactor]:
     """
     Find the best matching emission factor for given parameters.
@@ -99,6 +99,7 @@ def calculate_activity_emissions(
         if not existing:
             calc = EmissionCalculation(
                 activity_id=activity.activity_id,
+                factor_id=factor.factor_id,
                 co2e_value=co2e_value,
                 calculation_method="Emission Factor",
                 factor_used=f"{factor.category} ({factor.value} {factor.unit})"
@@ -121,7 +122,7 @@ def calculate_stationary_fuel_emissions(
     # Try to find matching factor based on fuel type
     factor = find_matching_factor(
         db,
-        category=fuel.fuel_type,
+        category=fuel.fuel,
         unit=fuel.unit
     )
     
@@ -187,7 +188,7 @@ def calculate_refrigerant_emissions(
     # Try to find matching refrigerant factor
     factor = find_matching_factor(
         db,
-        category=leak.refrigerant_type,
+        category=leak.refrigerant,
         unit="kg"
     )
     

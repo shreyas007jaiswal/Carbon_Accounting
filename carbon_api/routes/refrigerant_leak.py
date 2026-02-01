@@ -29,7 +29,7 @@ def create_refrigerant_leak(leak: RefrigerantLeakCreate, db: Session = Depends(g
     
     if not gwp_factor:
         # Look up GWP from emission factors database
-        factor = find_matching_factor(db, category=leak.refrigerant_type, unit="kg")
+        factor = find_matching_factor(db, category=leak.refrigerant, unit="kg")
         if factor:
             gwp_factor = float(factor.value)
             db_leak.gwp_factor = gwp_factor
@@ -47,18 +47,20 @@ def create_refrigerant_leak(leak: RefrigerantLeakCreate, db: Session = Depends(g
             EmissionCalculation.activity_id == leak.activity_id
         ).first()
         
-        factor_info = f"{leak.refrigerant_type} (GWP: {gwp_factor})"
+        factor_info = f"{leak.refrigerant} (GWP: {gwp_factor})"
         
         if existing_calc:
             existing_calc.co2e_value = co2e_value
             existing_calc.calculation_method = "Refrigerant GWP Auto-calc"
             existing_calc.factor_used = factor_info
+            existing_calc.factor_id = db_leak.factor_id
         else:
             calc = EmissionCalculation(
                 activity_id=leak.activity_id,
                 co2e_value=co2e_value,
                 calculation_method="Refrigerant GWP Auto-calc",
-                factor_used=factor_info
+                factor_used=factor_info,
+                factor_id=db_leak.factor_id
             )
             db.add(calc)
         

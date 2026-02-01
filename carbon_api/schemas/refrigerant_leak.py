@@ -10,8 +10,8 @@ from pydantic import BaseModel
 class RefrigerantLeakBase(BaseModel):
     """Base schema for refrigerant leak."""
     activity_id: int
-    refrigerant_category: Optional[str] = None  # HFC, PFC, etc.
-    refrigerant_type: str  # R-410A, R-134a, R-404A
+    category: Optional[str] = None  # HFC, PFC, etc.
+    refrigerant: str  # R-410A, R-134a, R-404A
     leak_quantity_kg: Decimal
     gwp_factor: Optional[Decimal] = None  # Global Warming Potential
     factor_id: Optional[int] = None

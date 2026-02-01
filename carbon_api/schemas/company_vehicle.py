@@ -12,7 +12,8 @@ class CompanyVehicleBase(BaseModel):
     activity_id: int
     vehicle_type: str  # Car, Van, HGV
     vehicle_size: Optional[str] = None  # Small, Medium, Large
-    fuel_type: Optional[str] = None  # Petrol, Diesel, Hybrid, Electric
+    fuel: Optional[str] = None  # Petrol, Diesel, Hybrid, Electric
+    category: Optional[str] = None  # Optional categorisation
     distance_travelled: Optional[Decimal] = None  # km
     fuel_consumed: Optional[Decimal] = None  # litres
     factor_id: Optional[int] = None

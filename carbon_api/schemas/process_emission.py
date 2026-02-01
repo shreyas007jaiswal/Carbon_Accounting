@@ -10,8 +10,8 @@ from pydantic import BaseModel
 class ProcessEmissionBase(BaseModel):
     """Base schema for process emission."""
     activity_id: int
-    material_category: Optional[str] = None  #ite clinite, Calcium Carbite
-    material_type: str
+    category: Optional[str] = None  #ite clinite, Calcium Carbite
+    material: str
     quantity_processed: Decimal
     unit: Optional[str] = None  # tonnes, kg
     factor_id: Optional[int] = None

@@ -95,11 +95,49 @@ class Supplier(Base):
     supplier_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     organization_id = Column(Integer, ForeignKey("organization.organization_id", ondelete="CASCADE"), nullable=True)
     name = Column(String(255), nullable=False)
-    category = Column(String(255))
+    procurement_category = Column(String(255))
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
     emission_activities = relationship("EmissionActivity", back_populates="supplier")
+
+
+
+# ==============================================================================
+# ADDITIONAL MASTER TABLES (Reference Data)
+# ==============================================================================
+
+class FuelType(Base):
+    """Fuel Type master table - used by StationaryFuel."""
+    __tablename__ = "fuel_type"
+
+    fuel_type_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name = Column(String(100), nullable=False, unique=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Scope(Base):
+    """Scope master table - reference for Scope 1/2/3."""
+    __tablename__ = "scope"
+
+    scope_id = Column(Integer, primary_key=True, index=True, autoincrement=False)  # 1,2,3
+    scope_label = Column(String(50), nullable=False, unique=True)  # 'Scope 1', etc.
+
+
+class Unit(Base):
+    """Unit master table - reference list of units."""
+    __tablename__ = "unit"
+
+    unit_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    unit = Column(String(50), nullable=False, unique=True)
+
+
+class Sector(Base):
+    """Sector master table - reference list of sectors."""
+    __tablename__ = "sector"
+
+    sector_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    sector = Column(String(100), nullable=False, unique=True)
 
 
 # ==============================================================================
@@ -276,7 +314,7 @@ class EmissionFactor(Base):
 
     factor_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     category = Column(String(100), nullable=False)
-    region = Column(String(100))
+    standard_source = Column(String(100))
     unit = Column(String(100))
     value = Column(DECIMAL(18, 6), nullable=False)
     valid_from = Column(Date)
@@ -327,6 +365,7 @@ class EmissionCalculation(Base):
 
     calculation_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     activity_id = Column(Integer, ForeignKey("emission_activity.activity_id", ondelete="CASCADE"), nullable=False)
+    factor_id = Column(Integer, ForeignKey("emission_factor.factor_id"), nullable=True)
     co2e_value = Column(DECIMAL(18, 4), nullable=False)
     calculation_method = Column(String(100))
     factor_used = Column(String(255))
@@ -334,6 +373,7 @@ class EmissionCalculation(Base):
 
     # Relationships
     activity = relationship("EmissionActivity", back_populates="calculations")
+    emission_factor = relationship("EmissionFactor")
 
 
 # ==============================================================================
@@ -346,8 +386,9 @@ class StationaryFuel(Base):
 
     fuel_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     activity_id = Column(Integer, ForeignKey("emission_activity.activity_id", ondelete="CASCADE"), nullable=False)
-    fuel_category = Column(String(100))  # Gaseous, Liquid, Solid
-    fuel_type = Column(String(100), nullable=False)
+    category = Column(String(100))  
+    fuel_type_id = Column(Integer, ForeignKey("fuel_type.fuel_type_id"), nullable=False)
+    fuel=Column(String(100))
     quantity = Column(DECIMAL(18, 4), nullable=False)
     unit = Column(String(50), nullable=False)
     factor_id = Column(Integer, ForeignKey("emission_factor.factor_id"), nullable=True)
@@ -356,6 +397,7 @@ class StationaryFuel(Base):
     # Relationships
     activity = relationship("EmissionActivity", back_populates="stationary_fuels")
     emission_factor = relationship("EmissionFactor", back_populates="stationary_fuels")
+    fuel_type = relationship("FuelType")
 
 
 class CompanyVehicle(Base):
@@ -366,7 +408,8 @@ class CompanyVehicle(Base):
     activity_id = Column(Integer, ForeignKey("emission_activity.activity_id", ondelete="CASCADE"), nullable=False)
     vehicle_type = Column(String(100), nullable=False)
     vehicle_size = Column(String(100))
-    fuel_type = Column(String(100))
+    fuel = Column(String(100))
+    category = Column(String(100))
     distance_travelled = Column(DECIMAL(18, 4))
     fuel_consumed = Column(DECIMAL(18, 4))
     factor_id = Column(Integer, ForeignKey("emission_factor.factor_id"), nullable=True)
@@ -383,8 +426,8 @@ class RefrigerantLeak(Base):
 
     refrigerant_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     activity_id = Column(Integer, ForeignKey("emission_activity.activity_id", ondelete="CASCADE"), nullable=False)
-    refrigerant_category = Column(String(100))
-    refrigerant_type = Column(String(100), nullable=False)
+    category = Column(String(100))
+    refrigerant = Column(String(100), nullable=False)
     leak_quantity_kg = Column(DECIMAL(18, 4), nullable=False)
     gwp_factor = Column(DECIMAL(18, 4))
     factor_id = Column(Integer, ForeignKey("emission_factor.factor_id"), nullable=True)
@@ -401,8 +444,8 @@ class ProcessEmission(Base):
 
     process_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     activity_id = Column(Integer, ForeignKey("emission_activity.activity_id", ondelete="CASCADE"), nullable=False)
-    material_category = Column(String(100))
-    material_type = Column(String(100), nullable=False)
+    category = Column(String(100))
+    material = Column(String(100), nullable=False)
     quantity_processed = Column(DECIMAL(18, 4), nullable=False)
     unit = Column(String(50))
     factor_id = Column(Integer, ForeignKey("emission_factor.factor_id"), nullable=True)
@@ -419,6 +462,10 @@ __all__ = [
     "User",
     "Facility",
     "Supplier",
+    "FuelType",
+    "Scope",
+    "Unit",
+    "Sector",
     # RBAC Tables
     "Role",
     "Permission",

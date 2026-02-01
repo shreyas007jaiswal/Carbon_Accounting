@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 
 class EmissionFactorBase(BaseModel):
     category: str = Field(..., max_length=100)
-    region: Optional[str] = Field(None, max_length=100)
+    standard_source: Optional[str] = Field(None, max_length=100)
     unit: Optional[str] = Field(None, max_length=100)
     value: Decimal
     valid_from: Optional[date] = None
